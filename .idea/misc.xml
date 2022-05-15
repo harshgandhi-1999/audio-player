@@ -3,7 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/tab_indicator.xml" value="0.2245" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/activity_main.xml" value="0.2234375" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/fragment_album.xml" value="0.1" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/fragment_song.xml" value="0.2234375" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/fragment_songs.xml" value="0.2234375" />
       </map>
     </option>
   </component>
