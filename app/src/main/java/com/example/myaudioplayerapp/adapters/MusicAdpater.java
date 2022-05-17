@@ -1,6 +1,8 @@
 package com.example.myaudioplayerapp.adapters;
 
 import android.content.Context;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.myaudioplayerapp.R;
 import com.example.myaudioplayerapp.models.MusicFile;
 
@@ -36,6 +39,14 @@ public class MusicAdpater extends RecyclerView.Adapter<MusicAdpater.MyViewHolder
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.musicNameText.setText(musicFiles.get(position).getTitle());
         holder.artistNameText.setText(musicFiles.get(position).getArtist());
+
+        byte[] image = getMusicImage(musicFiles.get(position).getPath());
+        if(image!=null){
+            Glide.with(mContext)
+                    .asBitmap()
+                    .load(image)
+                    .into(holder.musicImage);
+        }
     }
 
     @Override
@@ -54,5 +65,14 @@ public class MusicAdpater extends RecyclerView.Adapter<MusicAdpater.MyViewHolder
             musicNameText = itemView.findViewById(R.id.musicNameText);
             artistNameText = itemView.findViewById(R.id.artistNameText);
         }
+    }
+
+    private byte[] getMusicImage(String uri){
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(uri);
+        byte[] image = retriever.getEmbeddedPicture();
+        retriever.release();
+
+        return image;
     }
 }
