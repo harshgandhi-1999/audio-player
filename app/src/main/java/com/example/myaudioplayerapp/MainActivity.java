@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private ViewPagerAdapter adapter;
     private final ArrayList<String> tabTitles = new ArrayList<String>(Arrays.asList("Songs","Albums"));
-    private ArrayList<MusicFile> musicFiles;
+    public static ArrayList<MusicFile> musicFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
