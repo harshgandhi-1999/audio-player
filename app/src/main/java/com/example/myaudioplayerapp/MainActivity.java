@@ -35,14 +35,13 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private ViewPagerAdapter adapter;
     private final ArrayList<String> tabTitles = new ArrayList<String>(Arrays.asList("Songs","Albums"));
-    private ArrayList<MusicFile> musicFiles;
+    public static ArrayList<MusicFile> musicFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         permissionCheck();
-        initViews();
 
         adapter = new ViewPagerAdapter(this);
         adapter.addFragment(new SongFragment());
@@ -69,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
         }else{
             musicFiles = getAllAudio(this);
+            initViews();
         }
     }
 
@@ -78,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
         if(requestCode==REQUEST_CODE){
             if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(this, "Permission granted 1", Toast.LENGTH_SHORT).show();
                 musicFiles = getAllAudio(this);
+                initViews();
             }else if (grantResults[0]==PackageManager.PERMISSION_DENIED){
                 ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
             }
