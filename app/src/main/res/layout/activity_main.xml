@@ -18,7 +18,7 @@
         app:tabIndicatorFullWidth="true"
         app:tabTextColor="@color/colorAccent"
         app:tabIndicatorHeight="40dp"
-        app:tabIndicatorColor="@color/teal_700"
+        app:tabIndicatorColor="@color/colorSecondary"
         app:tabIndicatorGravity="center"
         app:tabIndicator="@drawable/tab_indicator"
         />

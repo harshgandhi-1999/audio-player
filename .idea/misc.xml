@@ -3,8 +3,25 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/gradient_bg.xml" value="0.197" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_chevron_right_24.xml" value="0.189" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_repeat_24.xml" value="0.2135" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_repeat_off.xml" value="0.1605" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_repeat_on.xml" value="0.1605" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_repeat_one_24.xml" value="0.23" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_shuffle_off.xml" value="0.189" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_shuffle_on.xml" value="0.158" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_chevron_left.xml" value="0.197" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_menu.xml" value="0.226" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_pause.xml" value="0.215" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_play.xml" value="0.215" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_prev.xml" value="0.197" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_shuffle_on.xml" value="0.189" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_skip_prev.xml" value="0.197" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/player_bg.xml" value="0.197" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/tab_indicator.xml" value="0.2245" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/activity_main.xml" value="0.2234375" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/activity_player.xml" value="0.264" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/fragment_album.xml" value="0.1" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/fragment_song.xml" value="0.2234375" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/fragment_songs.xml" value="0.2234375" />
