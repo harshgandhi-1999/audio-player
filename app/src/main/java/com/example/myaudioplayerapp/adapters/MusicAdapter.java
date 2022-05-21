@@ -3,7 +3,6 @@ package com.example.myaudioplayerapp.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +19,12 @@ import com.example.myaudioplayerapp.models.MusicFile;
 
 import java.util.ArrayList;
 
-public class MusicAdpater extends RecyclerView.Adapter<MusicAdpater.MyViewHolder>{
+public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder>{
 
     private Context mContext;
     private ArrayList<MusicFile> musicFiles;
 
-    public MusicAdpater(Context mContext, ArrayList<MusicFile> musicFiles) {
+    public MusicAdapter(Context mContext, ArrayList<MusicFile> musicFiles) {
         this.mContext = mContext;
         this.musicFiles = musicFiles;
     }
@@ -50,12 +49,10 @@ public class MusicAdpater extends RecyclerView.Adapter<MusicAdpater.MyViewHolder
                     .into(holder.musicImage);
         }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(mContext, PlayerActivity.class);
-                mContext.startActivity(intent);
-            }
+        holder.itemView.setOnClickListener(view -> {
+            Intent intent = new Intent(mContext, PlayerActivity.class);
+            intent.putExtra("position",holder.getAdapterPosition());
+            mContext.startActivity(intent);
         });
     }
 
