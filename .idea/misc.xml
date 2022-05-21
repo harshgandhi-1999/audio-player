@@ -3,6 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_chevron_right_24.xml" value="0.189" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_repeat_24.xml" value="0.2135" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_repeat_off.xml" value="0.1605" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_repeat_on.xml" value="0.1605" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_repeat_one_24.xml" value="0.23" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_shuffle_off.xml" value="0.189" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_baseline_shuffle_on.xml" value="0.158" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/ic_shuffle_on.xml" value="0.189" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/drawable/tab_indicator.xml" value="0.2245" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/activity_main.xml" value="0.2234375" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/fragment_album.xml" value="0.1" />
