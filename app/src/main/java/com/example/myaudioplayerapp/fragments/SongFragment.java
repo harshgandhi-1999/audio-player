@@ -11,10 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import com.example.myaudioplayerapp.R;
-import com.example.myaudioplayerapp.adapters.MusicAdpater;
+import com.example.myaudioplayerapp.adapters.MusicAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,7 +23,7 @@ import com.example.myaudioplayerapp.adapters.MusicAdpater;
 public class SongFragment extends Fragment {
 
     private RecyclerView songsRecView;
-    private MusicAdpater musicAdpater;
+    private MusicAdapter musicAdapter;
 
     public SongFragment() {
         // Required empty public constructor
@@ -49,8 +48,8 @@ public class SongFragment extends Fragment {
         songsRecView.setHasFixedSize(true);
 
         if(musicFiles.size()>=1){
-            musicAdpater = new MusicAdpater(getContext(),musicFiles);
-            songsRecView.setAdapter(musicAdpater);
+            musicAdapter = new MusicAdapter(getContext(),musicFiles);
+            songsRecView.setAdapter(musicAdapter);
             songsRecView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
         }
 
