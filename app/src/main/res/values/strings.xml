@@ -5,4 +5,16 @@
     <string name="music_file_image">music file image</string>
     <string name="artist_name">artist name</string>
     <string name="music_file_name">music file name</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="menu_icon">Menu icon</string>
+    <string name="left_arrow_icon">left arrow icon</string>
+    <string name="next_track">Next track</string>
+    <string name="play">Play</string>
+    <string name="prev_track">Prev track</string>
+    <string name="shuffle_btn">Shuffle btn</string>
+    <string name="repeat_btn">Repeat btn</string>
+    <string name="song_image">song image</string>
+    <string name="song_title">Song title</string>
+    <string name="start_time">start time</string>
+    <string name="end_time">end time</string>
 </resources>
