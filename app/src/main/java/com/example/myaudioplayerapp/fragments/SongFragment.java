@@ -46,6 +46,7 @@ public class SongFragment extends Fragment {
 
         songsRecView = view.findViewById(R.id.songsRecView);
         songsRecView.setHasFixedSize(true);
+        songsRecView.setItemViewCacheSize(20);
 
         if(musicFiles.size()>=1){
             musicAdapter = new MusicAdapter(getContext(),musicFiles);

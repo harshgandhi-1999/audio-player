@@ -4,6 +4,9 @@ import static com.example.myaudioplayerapp.MainActivity.musicFiles;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.myaudioplayerapp.models.MusicFile;
 
 import java.util.ArrayList;
@@ -114,6 +119,27 @@ public class PlayerActivity extends AppCompatActivity {
         // set seekbar total duration
         seekBar.setMax(mediaPlayer.getDuration()/1000);
         durationTotal.setText(getFormattedTime(mediaPlayer.getDuration()));
+
+        // set album art
+        setAlbumArt(uri);
+    }
+
+    private void setAlbumArt(Uri uri){
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(uri.toString());
+        byte[] data = retriever.getEmbeddedPicture();
+
+        if(data!=null){
+            Glide.with(this)
+                    .asBitmap()
+                    .load(data)
+                    .into(albumArt);
+        }else{
+            Glide.with(this)
+                    .asBitmap()
+                    .load(R.drawable.default_album_art)
+                    .into(albumArt);
+        }
     }
 
     private void initViews() {
@@ -130,7 +156,7 @@ public class PlayerActivity extends AppCompatActivity {
         durationTotal = findViewById(R.id.durationTotal);
     }
 
-    private String getFormattedTime(int millis){
+    private static String getFormattedTime(int millis){
 
         int hours = (int) (millis / (1000 * 60 * 60));
         int minutes = (int) ((millis % (1000 * 60 * 60)) / (1000 * 60));

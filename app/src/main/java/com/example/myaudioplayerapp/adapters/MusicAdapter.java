@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.myaudioplayerapp.PlayerActivity;
 import com.example.myaudioplayerapp.R;
 import com.example.myaudioplayerapp.models.MusicFile;
@@ -46,6 +47,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
             Glide.with(mContext)
                     .asBitmap()
                     .load(image)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.musicImage);
         }
 
