@@ -17,4 +17,8 @@
     <string name="song_title">Song title</string>
     <string name="start_time">start time</string>
     <string name="end_time">end time</string>
+    <string name="action_play">com.example.myaudioplayerapp.action.PLAY</string>
+    <string name="action_pause">com.example.myaudioplayerapp.action.PAUSE</string>
+    <string name="channel_name">music_player_notification_channel</string>
+    <string name="channel_description">music_player_notification_description</string>
 </resources>

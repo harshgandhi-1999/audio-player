@@ -9,6 +9,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,6 +22,7 @@ import com.example.myaudioplayerapp.adapters.ViewPagerAdapter;
 import com.example.myaudioplayerapp.fragments.AlbumFragment;
 import com.example.myaudioplayerapp.fragments.SongFragment;
 import com.example.myaudioplayerapp.models.MusicFile;
+import com.example.myaudioplayerapp.services.MusicPlayerService;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -109,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
                 String duration = cursor.getString(4);
 
                 MusicFile musicFile = new MusicFile(path,title,artist,album,duration);
-                Log.i(TAG, "getAllAudio: " + " TITLE = " + musicFile.getTitle() );
                 audioList.add(musicFile);
             }
             cursor.close();
@@ -118,4 +119,12 @@ public class MainActivity extends AppCompatActivity {
         return audioList;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(!MusicPlayerService.getInstance().getMyMediaPlayer().isPlaying()){
+            Intent intent = new Intent(this,MusicPlayerService.class);
+            stopService(intent);
+        }
+    }
 }

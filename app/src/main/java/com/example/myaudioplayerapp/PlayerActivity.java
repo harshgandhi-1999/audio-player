@@ -4,6 +4,9 @@ import static com.example.myaudioplayerapp.MainActivity.musicFiles;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
@@ -11,29 +14,39 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.myaudioplayerapp.models.MusicFile;
+import com.example.myaudioplayerapp.services.MusicPlayerService;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class PlayerActivity extends AppCompatActivity {
 
+    private static final String TAG = "PlayerActivity";
     private TextView songTitle,songArtistName,durationPlayed,durationTotal;
     private ImageView albumArt,prevBtn,nextBtn,shuffleBtn,repeatBtn,playBtn;
     private SeekBar seekBar;
     static ArrayList<MusicFile> songsList = new ArrayList<>();
     static Uri uri;
-    static MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer = null;
     private Handler handler = new Handler();
 
-    int position = -1;
+    // new vars
+    private MusicPlayerService musicPlayerService;
+    private Intent playIntent;
+    private boolean musicBound=false;
+
+    int position = 0;
 
 
     @Override
@@ -44,7 +57,9 @@ public class PlayerActivity extends AppCompatActivity {
         // initialize all the views
         initViews();
 
+        // get intent data
         getIntentMethod();
+        mediaPlayer = MusicPlayerService.getInstance().getMyMediaPlayer();
 
         // set seekbar change listener
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -91,37 +106,94 @@ public class PlayerActivity extends AppCompatActivity {
                 }
             }
         });
+
+        nextBtn.setOnClickListener(view ->{
+            playNextSong();
+        });
+
+        prevBtn.setOnClickListener(view->{
+            playPrevSong();
+        });
     }
 
-    private void getIntentMethod() {
-        position = getIntent().getIntExtra("position",-1);
-        songsList = musicFiles;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(playIntent==null){
+            playIntent = new Intent(this, MusicPlayerService.class);
+            bindService(playIntent, musicConnection, BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
 
-        if(songsList!=null){
+    //connect to the service
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicPlayerService.MusicBinder binder = (MusicPlayerService.MusicBinder)service;
+            //get service
+            musicPlayerService = binder.getService();
+            //pass list
+            musicPlayerService.setList(songsList);
+            musicBound = true;
+
+            mediaPlayer = musicPlayerService.getMyMediaPlayer();
+
+            Log.i(TAG, "onServiceConnected: MediaPlayer = " + mediaPlayer);
+            playSong();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
+
+    private void getIntentMethod() {
+        position = getIntent().getIntExtra("position",0);
+        songsList = musicFiles;
+        Log.i(TAG, "getIntentMethod: MediaPlayer = " + mediaPlayer);
+    }
+
+
+    private void playSong(){
+        Log.i(TAG, "playSong: Mediaplayer = " + mediaPlayer);
+        if(mediaPlayer!=null){
             MusicFile musicFile = songsList.get(position);
+            Uri uri = Uri.parse(musicFile.getPath());
+
             songTitle.setText(musicFile.getTitle());
             songArtistName.setText(musicFile.getArtist());
+            // set album art
+            setAlbumArt(uri);
 
-            // setting up pause button on playing of song
-            playBtn.setImageResource(R.drawable.ic_pause);
+            musicPlayerService.setCurPosition(position);
+            musicPlayerService.playSong();
 
-            // getting path to play song
-            uri = Uri.parse(musicFile.getPath());
+            // set seekbar total duration
+            seekBar.setMax(mediaPlayer.getDuration()/1000);
+            String dt = getFormattedTime(mediaPlayer.getDuration());
+            durationTotal.setText(dt);
+            Log.i(TAG, "playSong: durationTotal  = " + dt);
+
+            // is not playing that means play btn is shown so we have to change it to paused
+            if(!mediaPlayer.isPlaying()){
+                playBtn.setImageResource(R.drawable.ic_pause);
+            }
         }
+    }
 
-        if(mediaPlayer!=null){
-            mediaPlayer.stop();
-            mediaPlayer.release();
-        }
-        mediaPlayer = MediaPlayer.create(this,uri);
-        mediaPlayer.start();
+    private void playPrevSong() {
+        Toast.makeText(this, "Playing previous song", Toast.LENGTH_SHORT).show();
+        position = (position-1)%songsList.size();
+        playSong();
+    }
 
-        // set seekbar total duration
-        seekBar.setMax(mediaPlayer.getDuration()/1000);
-        durationTotal.setText(getFormattedTime(mediaPlayer.getDuration()));
-
-        // set album art
-        setAlbumArt(uri);
+    private void playNextSong() {
+        Toast.makeText(this, "Playing next song", Toast.LENGTH_SHORT).show();
+        position = (position+1)%songsList.size();
+        playSong();
     }
 
     private void setAlbumArt(Uri uri){
