@@ -30,14 +30,13 @@ import com.example.myaudioplayerapp.services.MusicPlayerService;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class PlayerActivity extends AppCompatActivity {
+public class PlayerActivity extends AppCompatActivity{
 
     private static final String TAG = "PlayerActivity";
     private TextView songTitle,songArtistName,durationPlayed,durationTotal;
     private ImageView albumArt,prevBtn,nextBtn,shuffleBtn,repeatBtn,playBtn;
     private SeekBar seekBar;
     static ArrayList<MusicFile> songsList = new ArrayList<>();
-    static Uri uri;
     private MediaPlayer mediaPlayer = null;
     private Handler handler = new Handler();
 
@@ -45,6 +44,7 @@ public class PlayerActivity extends AppCompatActivity {
     private MusicPlayerService musicPlayerService;
     private Intent playIntent;
     private boolean musicBound=false;
+    private Runnable runnable;
 
     int position = 0;
 
@@ -59,7 +59,6 @@ public class PlayerActivity extends AppCompatActivity {
 
         // get intent data
         getIntentMethod();
-        mediaPlayer = MusicPlayerService.getInstance().getMyMediaPlayer();
 
         // set seekbar change listener
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -80,18 +79,7 @@ public class PlayerActivity extends AppCompatActivity {
 
             }
         });
-        PlayerActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(mediaPlayer!=null){
-                    // in milli seconds
-                    int currentPosition = mediaPlayer.getCurrentPosition();
-                    seekBar.setProgress(currentPosition/1000);
-                    durationPlayed.setText(getFormattedTime(currentPosition));
-                }
-                handler.postDelayed(this,1000);
-            }
-        });
+
 
         playBtn.setOnClickListener(view -> {
             if(mediaPlayer!=null){
@@ -116,14 +104,37 @@ public class PlayerActivity extends AppCompatActivity {
         });
     }
 
+    private void playCycle(){
+        PlayerActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(mediaPlayer!=null){
+                     //in milli seconds
+                    int currentPosition = mediaPlayer.getCurrentPosition();
+                    seekBar.setProgress(currentPosition/1000);
+                    durationPlayed.setText(getFormattedTime(currentPosition));
+                    Log.i(TAG, "run: " + currentPosition);
+
+                }
+                handler.postDelayed(this,1000);
+            }
+        });
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
         if(playIntent==null){
             playIntent = new Intent(this, MusicPlayerService.class);
-            bindService(playIntent, musicConnection, BIND_AUTO_CREATE);
+            musicBound = bindService(playIntent, musicConnection, BIND_AUTO_CREATE);
             startService(playIntent);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(playIntent);
     }
 
     //connect to the service
@@ -160,6 +171,15 @@ public class PlayerActivity extends AppCompatActivity {
     private void playSong(){
         Log.i(TAG, "playSong: Mediaplayer = " + mediaPlayer);
         if(mediaPlayer!=null){
+//            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//                @Override
+//                public void onPrepared(MediaPlayer mediaPlayer) {
+//                    seekBar.setMax(mediaPlayer.getDuration()/1000);
+//                    durationTotal.setText(getFormattedTime(mediaPlayer.getDuration()));
+//                    playCycle();
+//                }
+//            });
+
             MusicFile musicFile = songsList.get(position);
             Uri uri = Uri.parse(musicFile.getPath());
 
@@ -170,12 +190,6 @@ public class PlayerActivity extends AppCompatActivity {
 
             musicPlayerService.setCurPosition(position);
             musicPlayerService.playSong();
-
-            // set seekbar total duration
-            seekBar.setMax(mediaPlayer.getDuration()/1000);
-            String dt = getFormattedTime(mediaPlayer.getDuration());
-            durationTotal.setText(dt);
-            Log.i(TAG, "playSong: durationTotal  = " + dt);
 
             // is not playing that means play btn is shown so we have to change it to paused
             if(!mediaPlayer.isPlaying()){

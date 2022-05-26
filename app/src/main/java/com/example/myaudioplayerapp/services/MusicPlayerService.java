@@ -10,8 +10,8 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
@@ -34,6 +34,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     private final int notification_id = 1;
     private final String CHANNEL_ID = "channel1";
     private final IBinder localBinder = new MusicBinder();
+    private LayoutInflater layoutInflater;
 
     public MusicPlayerService() {
         Log.i(TAG, "MusicPlayerService: Constructor called");
@@ -56,8 +57,10 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     }
     @Override
     public boolean onUnbind(Intent intent){
-        myMediaPlayer.stop();
-        myMediaPlayer.release();
+    //    myMediaPlayer.stop();
+        if(myMediaPlayer!=null){
+            myMediaPlayer.release();
+        }
         return false;
     }
 
@@ -110,10 +113,18 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         Log.i(TAG, "onDestroy: SERVICE_DESTROYED");
         if(myMediaPlayer!=null){
             myMediaPlayer.release();
-            myMediaPlayer = null;
+//            myMediaPlayer = null;
             Toast.makeText(this, "Music is stopped", Toast.LENGTH_SHORT).show();
-            postNotification("Music is stopped");
+            //postNotification("Music is stopped");
         }
+    }
+
+    public int getDuration(){
+        if(myMediaPlayer!=null){
+            return myMediaPlayer.getDuration();
+        }
+
+        return 0;
     }
 
     public void initMusicPlayer(){
