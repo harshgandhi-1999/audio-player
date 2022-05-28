@@ -2,13 +2,17 @@ package com.example.myaudioplayerapp;
 
 import static com.example.myaudioplayerapp.MainActivity.musicFiles;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.palette.graphics.Palette;
 
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -18,6 +22,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -236,17 +241,60 @@ public class PlayerActivity extends AppCompatActivity{
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(uri.toString());
         byte[] data = retriever.getEmbeddedPicture();
+        Bitmap bitmap;
 
         if(data!=null){
             Glide.with(this)
                     .asBitmap()
                     .load(data)
                     .into(albumArt);
+            bitmap = BitmapFactory.decodeByteArray(data,0,data.length);
+            Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                @Override
+                public void onGenerated(@Nullable Palette palette) {
+                    assert palette != null;
+                    Palette.Swatch swatch = palette.getDominantSwatch();
+                    ImageView imageGradient = findViewById(R.id.imageViewGradient);
+                    RelativeLayout layout = findViewById(R.id.playerContainer);
+                    imageGradient.setBackgroundResource(R.drawable.gradient_bg);
+                    layout.setBackgroundResource(R.drawable.player_bg);
+                    GradientDrawable gradientDrawable;
+                    if (swatch != null) {
+
+                        gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{swatch.getRgb(), 0x00000000});
+                        imageGradient.setBackground(gradientDrawable);
+
+                        GradientDrawable gradientDrawableBg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{swatch.getRgb(), swatch.getRgb()});
+                        layout.setBackground(gradientDrawableBg);
+
+                        songTitle.setTextColor(swatch.getTitleTextColor());
+                        songArtistName.setTextColor(swatch.getBodyTextColor());
+                    } else {
+
+                        gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{0xff000000, 0x00000000});
+                        imageGradient.setBackground(gradientDrawable);
+
+                        GradientDrawable gradientDrawableBg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{0xff000000, 0xff000000});
+                        layout.setBackground(gradientDrawableBg);
+
+                        songTitle.setTextColor(Color.WHITE);
+                        songArtistName.setTextColor(getColor(R.color.grey));
+                    }
+                }
+            });
+
         }else{
             Glide.with(this)
                     .asBitmap()
                     .load(R.drawable.default_album_art)
                     .into(albumArt);
+
+            ImageView imageGradient = findViewById(R.id.imageViewGradient);
+            RelativeLayout layout = findViewById(R.id.playerContainer);
+            imageGradient.setBackgroundResource(R.drawable.gradient_bg);
+            layout.setBackgroundResource(R.drawable.player_bg);
+            songTitle.setTextColor(Color.WHITE);
+            songArtistName.setTextColor(getColor(R.color.grey));
         }
     }
 
