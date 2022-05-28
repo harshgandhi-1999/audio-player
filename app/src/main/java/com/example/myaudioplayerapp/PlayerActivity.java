@@ -105,20 +105,23 @@ public class PlayerActivity extends AppCompatActivity{
     }
 
     private void playCycle(){
-        PlayerActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(mediaPlayer!=null){
-                     //in milli seconds
-                    int currentPosition = mediaPlayer.getCurrentPosition();
-                    seekBar.setProgress(currentPosition/1000);
-                    durationPlayed.setText(getFormattedTime(currentPosition));
-                    Log.i(TAG, "run: " + currentPosition);
 
+        if(mediaPlayer!=null){
+            int currentPosition = mediaPlayer.getCurrentPosition();
+            seekBar.setProgress(currentPosition/1000);
+            durationPlayed.setText(getFormattedTime(currentPosition));
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if(mediaPlayer!=null){
+                        //in milli seconds
+                        playCycle();
+                        Log.i(TAG, "run: " + currentPosition);
+                    }
                 }
-                handler.postDelayed(this,1000);
-            }
-        });
+            };
+            handler.postDelayed(runnable,1000);
+        }
     }
 
     @Override
@@ -135,6 +138,7 @@ public class PlayerActivity extends AppCompatActivity{
     protected void onDestroy() {
         super.onDestroy();
         stopService(playIntent);
+        handler.removeCallbacks(runnable);
     }
 
     //connect to the service
@@ -152,6 +156,34 @@ public class PlayerActivity extends AppCompatActivity{
             mediaPlayer = musicPlayerService.getMyMediaPlayer();
 
             Log.i(TAG, "onServiceConnected: MediaPlayer = " + mediaPlayer);
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                    // set initial position
+                    int currentPosition = mp.getCurrentPosition();
+                    seekBar.setProgress(currentPosition/1000);
+                    durationPlayed.setText(getFormattedTime(currentPosition));
+
+                    // set total duration
+                    seekBar.setMax(mp.getDuration()/1000);
+                    durationTotal.setText(getFormattedTime(mp.getDuration()));
+
+                    // is not playing that means play btn is shown so we have to change it to paused
+                    if(mp.isPlaying()){
+                        playBtn.setImageResource(R.drawable.ic_pause);
+                    }else{
+                        playBtn.setImageResource(R.drawable.ic_play);
+                    }
+
+                    // post the notification
+                    musicPlayerService.postNotification("Music is playing");
+
+
+                    playCycle();
+                }
+            });
+
             playSong();
         }
 
@@ -171,15 +203,6 @@ public class PlayerActivity extends AppCompatActivity{
     private void playSong(){
         Log.i(TAG, "playSong: Mediaplayer = " + mediaPlayer);
         if(mediaPlayer!=null){
-//            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                @Override
-//                public void onPrepared(MediaPlayer mediaPlayer) {
-//                    seekBar.setMax(mediaPlayer.getDuration()/1000);
-//                    durationTotal.setText(getFormattedTime(mediaPlayer.getDuration()));
-//                    playCycle();
-//                }
-//            });
-
             MusicFile musicFile = songsList.get(position);
             Uri uri = Uri.parse(musicFile.getPath());
 
@@ -190,17 +213,16 @@ public class PlayerActivity extends AppCompatActivity{
 
             musicPlayerService.setCurPosition(position);
             musicPlayerService.playSong();
-
-            // is not playing that means play btn is shown so we have to change it to paused
-            if(!mediaPlayer.isPlaying()){
-                playBtn.setImageResource(R.drawable.ic_pause);
-            }
         }
     }
 
     private void playPrevSong() {
         Toast.makeText(this, "Playing previous song", Toast.LENGTH_SHORT).show();
-        position = (position-1)%songsList.size();
+        if(position==0){
+            position = songsList.size()-1;
+        }else{
+            position = position-1;
+        }
         playSong();
     }
 

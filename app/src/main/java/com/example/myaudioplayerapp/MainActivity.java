@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -122,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(!MusicPlayerService.getInstance().getMyMediaPlayer().isPlaying()){
+        MediaPlayer mediaPlayer = MusicPlayerService.getInstance().getMyMediaPlayer();
+        if(mediaPlayer!=null && !mediaPlayer.isPlaying()){
             Intent intent = new Intent(this,MusicPlayerService.class);
             stopService(intent);
         }

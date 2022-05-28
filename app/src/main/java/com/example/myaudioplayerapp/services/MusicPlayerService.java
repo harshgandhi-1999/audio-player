@@ -94,7 +94,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-
+        mediaPlayer.stop();
     }
 
     @Override
@@ -115,7 +115,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
             myMediaPlayer.release();
 //            myMediaPlayer = null;
             Toast.makeText(this, "Music is stopped", Toast.LENGTH_SHORT).show();
-            //postNotification("Music is stopped");
+            postNotification("Music is stopped");
         }
     }
 
@@ -159,7 +159,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         }
     }
 
-    private void postNotification(String msg) {
+    public void postNotification(String msg) {
         createNotificationChannel();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this,CHANNEL_ID)
                 .setSmallIcon(R.drawable.notification_icon)
