@@ -4,6 +4,9 @@ import static com.example.myaudioplayerapp.MainActivity.musicFiles;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
@@ -11,29 +14,39 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.myaudioplayerapp.models.MusicFile;
+import com.example.myaudioplayerapp.services.MusicPlayerService;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class PlayerActivity extends AppCompatActivity {
+public class PlayerActivity extends AppCompatActivity{
 
+    private static final String TAG = "PlayerActivity";
     private TextView songTitle,songArtistName,durationPlayed,durationTotal;
     private ImageView albumArt,prevBtn,nextBtn,shuffleBtn,repeatBtn,playBtn;
     private SeekBar seekBar;
     static ArrayList<MusicFile> songsList = new ArrayList<>();
-    static Uri uri;
-    static MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer = null;
     private Handler handler = new Handler();
 
-    int position = -1;
+    // new vars
+    private MusicPlayerService musicPlayerService;
+    private Intent playIntent;
+    private boolean musicBound=false;
+    private Runnable runnable;
+
+    int position = 0;
 
 
     @Override
@@ -44,6 +57,7 @@ public class PlayerActivity extends AppCompatActivity {
         // initialize all the views
         initViews();
 
+        // get intent data
         getIntentMethod();
 
         // set seekbar change listener
@@ -65,18 +79,7 @@ public class PlayerActivity extends AppCompatActivity {
 
             }
         });
-        PlayerActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(mediaPlayer!=null){
-                    // in milli seconds
-                    int currentPosition = mediaPlayer.getCurrentPosition();
-                    seekBar.setProgress(currentPosition/1000);
-                    durationPlayed.setText(getFormattedTime(currentPosition));
-                }
-                handler.postDelayed(this,1000);
-            }
-        });
+
 
         playBtn.setOnClickListener(view -> {
             if(mediaPlayer!=null){
@@ -91,37 +94,142 @@ public class PlayerActivity extends AppCompatActivity {
                 }
             }
         });
+
+        nextBtn.setOnClickListener(view ->{
+            playNextSong();
+        });
+
+        prevBtn.setOnClickListener(view->{
+            playPrevSong();
+        });
     }
 
-    private void getIntentMethod() {
-        position = getIntent().getIntExtra("position",-1);
-        songsList = musicFiles;
-
-        if(songsList!=null){
-            MusicFile musicFile = songsList.get(position);
-            songTitle.setText(musicFile.getTitle());
-            songArtistName.setText(musicFile.getArtist());
-
-            // setting up pause button on playing of song
-            playBtn.setImageResource(R.drawable.ic_pause);
-
-            // getting path to play song
-            uri = Uri.parse(musicFile.getPath());
-        }
+    private void playCycle(){
 
         if(mediaPlayer!=null){
-            mediaPlayer.stop();
-            mediaPlayer.release();
+            int currentPosition = mediaPlayer.getCurrentPosition();
+            seekBar.setProgress(currentPosition/1000);
+            durationPlayed.setText(getFormattedTime(currentPosition));
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if(mediaPlayer!=null){
+                        //in milli seconds
+                        playCycle();
+                        Log.i(TAG, "run: " + currentPosition);
+                    }
+                }
+            };
+            handler.postDelayed(runnable,1000);
         }
-        mediaPlayer = MediaPlayer.create(this,uri);
-        mediaPlayer.start();
+    }
 
-        // set seekbar total duration
-        seekBar.setMax(mediaPlayer.getDuration()/1000);
-        durationTotal.setText(getFormattedTime(mediaPlayer.getDuration()));
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(playIntent==null){
+            playIntent = new Intent(this, MusicPlayerService.class);
+            musicBound = bindService(playIntent, musicConnection, BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
 
-        // set album art
-        setAlbumArt(uri);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(playIntent);
+        handler.removeCallbacks(runnable);
+    }
+
+    //connect to the service
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicPlayerService.MusicBinder binder = (MusicPlayerService.MusicBinder)service;
+            //get service
+            musicPlayerService = binder.getService();
+            //pass list
+            musicPlayerService.setList(songsList);
+            musicBound = true;
+
+            mediaPlayer = musicPlayerService.getMyMediaPlayer();
+
+            Log.i(TAG, "onServiceConnected: MediaPlayer = " + mediaPlayer);
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                    // set initial position
+                    int currentPosition = mp.getCurrentPosition();
+                    seekBar.setProgress(currentPosition/1000);
+                    durationPlayed.setText(getFormattedTime(currentPosition));
+
+                    // set total duration
+                    seekBar.setMax(mp.getDuration()/1000);
+                    durationTotal.setText(getFormattedTime(mp.getDuration()));
+
+                    // is not playing that means play btn is shown so we have to change it to paused
+                    if(mp.isPlaying()){
+                        playBtn.setImageResource(R.drawable.ic_pause);
+                    }else{
+                        playBtn.setImageResource(R.drawable.ic_play);
+                    }
+
+                    // post the notification
+                    musicPlayerService.postNotification("Music is playing");
+
+
+                    playCycle();
+                }
+            });
+
+            playSong();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
+
+    private void getIntentMethod() {
+        position = getIntent().getIntExtra("position",0);
+        songsList = musicFiles;
+        Log.i(TAG, "getIntentMethod: MediaPlayer = " + mediaPlayer);
+    }
+
+
+    private void playSong(){
+        Log.i(TAG, "playSong: Mediaplayer = " + mediaPlayer);
+        if(mediaPlayer!=null){
+            MusicFile musicFile = songsList.get(position);
+            Uri uri = Uri.parse(musicFile.getPath());
+
+            songTitle.setText(musicFile.getTitle());
+            songArtistName.setText(musicFile.getArtist());
+            // set album art
+            setAlbumArt(uri);
+
+            musicPlayerService.setCurPosition(position);
+            musicPlayerService.playSong();
+        }
+    }
+
+    private void playPrevSong() {
+        Toast.makeText(this, "Playing previous song", Toast.LENGTH_SHORT).show();
+        if(position==0){
+            position = songsList.size()-1;
+        }else{
+            position = position-1;
+        }
+        playSong();
+    }
+
+    private void playNextSong() {
+        Toast.makeText(this, "Playing next song", Toast.LENGTH_SHORT).show();
+        position = (position+1)%songsList.size();
+        playSong();
     }
 
     private void setAlbumArt(Uri uri){

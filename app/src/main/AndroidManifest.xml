@@ -3,6 +3,7 @@
     package="com.example.myaudioplayerapp">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -11,6 +12,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyAudioPlayerApp">
+        <service
+            android:name=".services.MusicPlayerService"
+            android:enabled="true"
+            android:exported="false" />
+
         <activity
             android:name=".PlayerActivity"
             android:exported="false" />
