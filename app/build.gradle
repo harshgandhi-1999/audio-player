@@ -40,4 +40,7 @@ dependencies {
     // glide image loading library
     implementation 'com.github.bumptech.glide:glide:4.13.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.0'
+
+    // palette library
+    implementation 'androidx.palette:palette:1.0.0'
 }
