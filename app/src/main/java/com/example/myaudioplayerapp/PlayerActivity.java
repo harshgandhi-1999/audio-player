@@ -39,7 +39,7 @@ public class PlayerActivity extends AppCompatActivity{
 
     private static final String TAG = "PlayerActivity";
     private TextView songTitle,songArtistName,durationPlayed,durationTotal;
-    private ImageView albumArt,prevBtn,nextBtn,shuffleBtn,repeatBtn,playBtn;
+    private ImageView albumArt,prevBtn,nextBtn,shuffleBtn,repeatBtn,playBtn,backBtn;
     private SeekBar seekBar;
     static ArrayList<MusicFile> songsList = new ArrayList<>();
     private MediaPlayer mediaPlayer = null;
@@ -107,6 +107,14 @@ public class PlayerActivity extends AppCompatActivity{
         prevBtn.setOnClickListener(view->{
             playPrevSong();
         });
+
+        backBtn.setOnClickListener(view -> {
+            onBackBtnPressed();
+        });
+    }
+
+    private void onBackBtnPressed() {
+        super.onBackPressed();
     }
 
     private void playCycle(){
@@ -310,6 +318,7 @@ public class PlayerActivity extends AppCompatActivity{
         seekBar = findViewById(R.id.playerSeekbar);
         durationPlayed = findViewById(R.id.durationPlayed);
         durationTotal = findViewById(R.id.durationTotal);
+        backBtn = findViewById(R.id.backBtn);
     }
 
     private static String getFormattedTime(int millis){
