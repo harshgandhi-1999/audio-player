@@ -71,6 +71,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         myMediaPlayer = new MediaPlayer();
         curPosition = 0;
         initMusicPlayer();
+        createNotificationChannel();
     }
 
     public void setCurPosition(int curPosition){
@@ -160,7 +161,6 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     }
 
     public void postNotification(String msg) {
-        createNotificationChannel();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this,CHANNEL_ID)
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle("My Music Player")
@@ -170,7 +170,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         Notification notification = builder.build();
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
         notificationManagerCompat.notify(TAG,notification_id,notification);
-        startForeground(notification_id,notification);
+        //startForeground(notification_id,notification);
     }
 
     public class MusicBinder extends Binder{
