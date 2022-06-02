@@ -22,4 +22,6 @@
     <string name="channel_name">music_player_notification_channel</string>
     <string name="channel_description">music_player_notification_description</string>
     <string name="gradient_image">gradient image</string>
+    <string name="music_play_mode_icon">music play mode icon</string>
+    <string name="favorite_button">Favorite button</string>
 </resources>

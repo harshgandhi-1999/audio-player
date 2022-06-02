@@ -1,5 +1,6 @@
 package com.example.myaudioplayerapp;
 
+import static com.example.myaudioplayerapp.MainActivity.currentMusicPLayMode;
 import static com.example.myaudioplayerapp.MainActivity.musicFiles;
 
 import androidx.annotation.Nullable;
@@ -37,12 +38,13 @@ import com.example.myaudioplayerapp.services.MusicPlayerService;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Random;
 
 public class PlayerActivity extends AppCompatActivity{
 
     private static final String TAG = "PlayerActivity";
     private TextView songTitle,songArtistName,durationPlayed,durationTotal;
-    private ImageView albumArt,prevBtn,nextBtn,shuffleBtn,repeatBtn,playBtn,backBtn;
+    private ImageView albumArt,prevBtn,nextBtn,playBtn,backBtn,musicPlayModeBtn,favoriteBtn;
     private SeekBar seekBar;
     static ArrayList<MusicFile> songsList = new ArrayList<>();
     private MediaPlayer mediaPlayer = null;
@@ -103,17 +105,39 @@ public class PlayerActivity extends AppCompatActivity{
             }
         });
 
-        nextBtn.setOnClickListener(view ->{
-            playNextSong();
-        });
+        nextBtn.setOnClickListener(view -> playNextSong());
 
-        prevBtn.setOnClickListener(view->{
-            playPrevSong();
-        });
+        prevBtn.setOnClickListener(view-> playPrevSong());
 
-        backBtn.setOnClickListener(view -> {
-            onBackBtnPressed();
-        });
+        backBtn.setOnClickListener(view -> onBackBtnPressed());
+
+        musicPlayModeBtn.setOnClickListener(view -> handleMusicPlayModeChange());
+
+        favoriteBtn.setOnClickListener(view -> handleMarkFavorite());
+    }
+
+    private void handleMarkFavorite() {
+        // toggle favorite
+        Toast.makeText(this,"Marked Favortie",Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleMusicPlayModeChange() {
+        switch (currentMusicPLayMode){
+            case REPEAT:
+                currentMusicPLayMode = MusicPlayMode.REPEAT_ONE;
+                musicPlayModeBtn.setImageResource(R.drawable.ic_repeat_one);
+                break;
+            case REPEAT_ONE:
+                currentMusicPLayMode = MusicPlayMode.SHUFFLE;
+                musicPlayModeBtn.setImageResource(R.drawable.ic_shuffle);
+                break;
+            case SHUFFLE:
+                currentMusicPLayMode = MusicPlayMode.REPEAT;
+                musicPlayModeBtn.setImageResource(R.drawable.ic_repeat);
+                break;
+            default:
+                break;
+        }
     }
 
     private void onBackBtnPressed() {
@@ -240,18 +264,35 @@ public class PlayerActivity extends AppCompatActivity{
     }
 
     private void playPrevSong() {
-        Toast.makeText(this, "Playing previous song", Toast.LENGTH_SHORT).show();
-        if(position==0){
-            position = songsList.size()-1;
-        }else{
-            position = position-1;
+        switch (currentMusicPLayMode){
+            case REPEAT:
+                if(position==0){
+                    position = songsList.size()-1;
+                }else{
+                    position = position-1;
+                }
+                break;
+            case SHUFFLE:
+                position = getRandomPosition(songsList.size());
+                break;
+            default:
+                break;
         }
         playSong();
     }
 
     private void playNextSong() {
-        Toast.makeText(this, "Playing next song", Toast.LENGTH_SHORT).show();
-        position = (position+1)%songsList.size();
+        switch (currentMusicPLayMode){
+            case REPEAT:
+                position = (position+1)%songsList.size();
+                break;
+            case SHUFFLE:
+                position = getRandomPosition(songsList.size());
+                break;
+            default:
+                break;
+        }
+
         playSong();
     }
 
@@ -319,13 +360,36 @@ public class PlayerActivity extends AppCompatActivity{
         albumArt = findViewById(R.id.songAlbumArtImage);
         prevBtn = findViewById(R.id.prevBtnImage);
         nextBtn = findViewById(R.id.nextBtnImage);
-        shuffleBtn = findViewById(R.id.shuffleBtnImage);
-        repeatBtn = findViewById(R.id.repeatBtnImage);
         playBtn = findViewById(R.id.playBtnImage);
         seekBar = findViewById(R.id.playerSeekbar);
         durationPlayed = findViewById(R.id.durationPlayed);
         durationTotal = findViewById(R.id.durationTotal);
         backBtn = findViewById(R.id.backBtn);
+        musicPlayModeBtn = findViewById(R.id.musicPlayModeImage);
+        favoriteBtn = findViewById(R.id.favoriteBtnImage);
+
+        // set music play mode
+        setMusicPlayModeIcon();
+    }
+
+    private void setMusicPlayModeIcon() {
+        switch (currentMusicPLayMode){
+            case REPEAT:
+                musicPlayModeBtn.setImageResource(R.drawable.ic_repeat);
+                break;
+            case REPEAT_ONE:
+                musicPlayModeBtn.setImageResource(R.drawable.ic_repeat_one);
+                break;
+            case SHUFFLE:
+                musicPlayModeBtn.setImageResource(R.drawable.ic_shuffle);
+            default:
+                break;
+        }
+    }
+
+    private static int getRandomPosition(int size){
+        Random random = new Random();
+        return random.nextInt(size);
     }
 
     private static String getFormattedTime(int millis){

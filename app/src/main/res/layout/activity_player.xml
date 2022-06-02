@@ -142,12 +142,12 @@
         >
 
         <ImageView
-            android:id="@+id/shuffleBtnImage"
+            android:id="@+id/musicPlayModeImage"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_weight="1"
-            android:contentDescription="@string/shuffle_btn"
-            android:src="@drawable/ic_shuffle_off" />
+            android:contentDescription="@string/music_play_mode_icon"
+            android:src="@drawable/ic_repeat" />
 
         <ImageView
             android:id="@+id/prevBtnImage"
@@ -174,12 +174,12 @@
             android:src="@drawable/ic_skip_next" />
 
         <ImageView
-            android:id="@+id/repeatBtnImage"
+            android:id="@+id/favoriteBtnImage"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_weight="1"
-            android:contentDescription="@string/repeat_btn"
-            android:src="@drawable/ic_repeat_on" />
+            android:contentDescription="@string/favorite_button"
+            android:src="@drawable/ic_not_favorite" />
 
     </LinearLayout>
 
