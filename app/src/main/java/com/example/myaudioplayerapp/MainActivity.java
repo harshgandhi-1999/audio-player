@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private final ArrayList<String> tabTitles = new ArrayList<String>(Arrays.asList("Songs","Albums"));
     public static ArrayList<MusicFile> musicFiles;
 
+    public static MusicPlayMode currentMusicPLayMode = MusicPlayMode.REPEAT;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
