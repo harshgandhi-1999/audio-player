@@ -147,20 +147,25 @@ public class PlayerActivity extends AppCompatActivity{
     private void playCycle(){
 
         if(mediaPlayer!=null){
-            int currentPosition = mediaPlayer.getCurrentPosition();
-            seekBar.setProgress(currentPosition/1000);
-            durationPlayed.setText(getFormattedTime(currentPosition));
-            runnable = new Runnable() {
-                @Override
-                public void run() {
-                    if(mediaPlayer!=null){
-                        //in milli seconds
-                        playCycle();
-                        Log.i(TAG, "run: " + currentPosition);
+            try {
+                // can generate illegal state exception for mediaPlayer
+                int currentPosition = mediaPlayer.getCurrentPosition();
+                seekBar.setProgress(currentPosition/1000);
+                durationPlayed.setText(getFormattedTime(currentPosition));
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if(mediaPlayer!=null){
+                            //in milli seconds
+                            playCycle();
+                            Log.i(TAG, "run: " + currentPosition);
+                        }
                     }
-                }
-            };
-            handler.postDelayed(runnable,1000);
+                };
+                handler.postDelayed(runnable,1000);
+            }catch (Exception e){
+                handler.removeCallbacks(runnable);
+            }
         }
     }
 
@@ -196,40 +201,32 @@ public class PlayerActivity extends AppCompatActivity{
             mediaPlayer = musicPlayerService.getMyMediaPlayer();
 
             Log.i(TAG, "onServiceConnected: MediaPlayer = " + mediaPlayer);
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.start();
-                    // set initial position
-                    int currentPosition = mp.getCurrentPosition();
-                    seekBar.setProgress(currentPosition/1000);
-                    durationPlayed.setText(getFormattedTime(currentPosition));
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                // set initial position
+                int currentPosition = mp.getCurrentPosition();
+                seekBar.setProgress(currentPosition/1000);
+                durationPlayed.setText(getFormattedTime(currentPosition));
 
-                    // set total duration
-                    seekBar.setMax(mp.getDuration()/1000);
-                    durationTotal.setText(getFormattedTime(mp.getDuration()));
+                // set total duration
+                seekBar.setMax(mp.getDuration()/1000);
+                durationTotal.setText(getFormattedTime(mp.getDuration()));
 
-                    // is not playing that means play btn is shown so we have to change it to paused
-                    if(mp.isPlaying()){
-                        playBtn.setImageResource(R.drawable.ic_pause);
-                    }else{
-                        playBtn.setImageResource(R.drawable.ic_play);
-                    }
-
-                    // post the notification
-                    musicPlayerService.postNotification("Music is playing");
-
-
-                    playCycle();
+                // is not playing that means play btn is shown so we have to change it to paused
+                if(mp.isPlaying()){
+                    playBtn.setImageResource(R.drawable.ic_pause);
+                }else{
+                    playBtn.setImageResource(R.drawable.ic_play);
                 }
+
+                // post the notification
+                musicPlayerService.postNotification("Music is playing");
+
+
+                playCycle();
             });
 
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    playNextSong();
-                }
-            });
+            mediaPlayer.setOnCompletionListener(mp -> playNextSong());
 
             playSong();
         }
