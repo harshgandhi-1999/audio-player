@@ -2,6 +2,7 @@ package com.example.myaudioplayerapp;
 
 import static com.example.myaudioplayerapp.MainActivity.currentMusicPLayMode;
 import static com.example.myaudioplayerapp.MainActivity.musicFiles;
+import static com.example.myaudioplayerapp.adapters.AlbumSongsAdapter.albumSongs;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,7 +23,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -32,7 +32,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.myaudioplayerapp.models.MusicFile;
 import com.example.myaudioplayerapp.services.MusicPlayerService;
 
@@ -239,7 +238,12 @@ public class PlayerActivity extends AppCompatActivity{
 
     private void getIntentMethod() {
         position = getIntent().getIntExtra("position",0);
-        songsList = musicFiles;
+        String sender = getIntent().getStringExtra("sender");
+        if (sender!=null && sender.equals("albumDetails")){
+            songsList = albumSongs;
+        }else{
+            songsList = musicFiles;
+        }
         Log.i(TAG, "getIntentMethod: MediaPlayer = " + mediaPlayer);
     }
 
@@ -338,7 +342,6 @@ public class PlayerActivity extends AppCompatActivity{
 
         }else{
             Glide.with(this)
-                    .asBitmap()
                     .load(R.drawable.default_album_art)
                     .into(albumArt);
 

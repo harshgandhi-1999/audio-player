@@ -1,6 +1,7 @@
 package com.example.myaudioplayerapp.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.myaudioplayerapp.AlbumDetailActivity;
 import com.example.myaudioplayerapp.R;
 import com.example.myaudioplayerapp.models.MusicFile;
 
@@ -20,11 +21,11 @@ import java.util.ArrayList;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.MyViewHolder>{
     private Context context;
-    private ArrayList<MusicFile> musicFiles;
+    private ArrayList<MusicFile> albumFiles;
 
-    public AlbumAdapter(Context context, ArrayList<MusicFile> musicFiles) {
+    public AlbumAdapter(Context context, ArrayList<MusicFile> albumFiles) {
         this.context = context;
-        this.musicFiles = musicFiles;
+        this.albumFiles = albumFiles;
     }
 
     @NonNull
@@ -36,21 +37,29 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.MyViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        holder.albumName.setText(musicFiles.get(position).getAlbum());
+        holder.albumName.setText(albumFiles.get(position).getAlbum());
 
-        byte[] image = getMusicImage(musicFiles.get(position).getPath());
+        byte[] image = getMusicImage(albumFiles.get(position).getPath());
         if(image!=null){
             Glide.with(context)
-                    .asBitmap()
                     .load(image)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.albumArt);
+        }else{
+            Glide.with(context)
+                    .load(R.drawable.default_album_art)
                     .into(holder.albumArt);
         }
+
+        holder.itemView.setOnClickListener(view -> {
+            Intent intent = new Intent(context, AlbumDetailActivity.class);
+            intent.putExtra("albumName",albumFiles.get(position).getAlbum());
+            context.startActivity(intent);
+        });
     }
 
     @Override
     public int getItemCount() {
-        return musicFiles.size();
+        return albumFiles.size();
     }
 
 

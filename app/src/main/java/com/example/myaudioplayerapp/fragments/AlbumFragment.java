@@ -1,6 +1,6 @@
 package com.example.myaudioplayerapp.fragments;
 
-import static com.example.myaudioplayerapp.MainActivity.musicFiles;
+import static com.example.myaudioplayerapp.MainActivity.albums;
 
 import android.os.Bundle;
 
@@ -51,8 +51,8 @@ public class AlbumFragment extends Fragment {
         albumsRecView.setHasFixedSize(true);
         albumsRecView.setItemViewCacheSize(20);
 
-        if(musicFiles.size()>=1){
-            albumAdapter = new AlbumAdapter(getContext(),musicFiles);
+        if(albums.size()>=1){
+            albumAdapter = new AlbumAdapter(getContext(),albums);
             albumsRecView.setAdapter(albumAdapter);
             albumsRecView.setLayoutManager(new GridLayoutManager(getContext(),2));
         }
