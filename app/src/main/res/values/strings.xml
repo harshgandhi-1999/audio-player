@@ -24,4 +24,6 @@
     <string name="gradient_image">gradient image</string>
     <string name="music_play_mode_icon">music play mode icon</string>
     <string name="favorite_button">Favorite button</string>
+    <string name="album_name">Album Name</string>
+    <string name="album_image">Album Image</string>
 </resources>

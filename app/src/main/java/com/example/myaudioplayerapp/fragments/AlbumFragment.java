@@ -1,14 +1,19 @@
 package com.example.myaudioplayerapp.fragments;
 
+import static com.example.myaudioplayerapp.MainActivity.musicFiles;
+
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myaudioplayerapp.R;
+import com.example.myaudioplayerapp.adapters.AlbumAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,13 +22,16 @@ import com.example.myaudioplayerapp.R;
  */
 public class AlbumFragment extends Fragment {
 
+    private RecyclerView albumsRecView;
+    private AlbumAdapter albumAdapter;
+
 
     public AlbumFragment() {
         // Required empty public constructor
     }
 
 
-    public static AlbumFragment newInstance(String param1, String param2) {
+    public static AlbumFragment newInstance() {
         return new AlbumFragment();
     }
 
@@ -35,7 +43,20 @@ public class AlbumFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_album, container, false);
+        View view = inflater.inflate(R.layout.fragment_album, container, false);
+
+        albumsRecView = view.findViewById(R.id.albumsRecView);
+        albumsRecView.setHasFixedSize(true);
+        albumsRecView.setItemViewCacheSize(20);
+
+        if(musicFiles.size()>=1){
+            albumAdapter = new AlbumAdapter(getContext(),musicFiles);
+            albumsRecView.setAdapter(albumAdapter);
+            albumsRecView.setLayoutManager(new GridLayoutManager(getContext(),2));
+        }
+
+        return view;
     }
 }
