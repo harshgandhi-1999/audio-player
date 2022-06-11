@@ -19,52 +19,54 @@ import com.example.myaudioplayerapp.models.MusicFile;
 
 import java.util.ArrayList;
 
-public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder>{
+public class AlbumSongsAdapter extends RecyclerView.Adapter<AlbumSongsAdapter.MyViewHolder> {
+    private Context context;
+    public static ArrayList<MusicFile> albumSongs;
 
-    private Context mContext;
-    private ArrayList<MusicFile> musicFiles;
-
-    public MusicAdapter(Context mContext, ArrayList<MusicFile> musicFiles) {
-        this.mContext = mContext;
-        this.musicFiles = musicFiles;
+    public AlbumSongsAdapter(Context context, ArrayList<MusicFile> albumSongs) {
+        this.context = context;
+        AlbumSongsAdapter.albumSongs = albumSongs;
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.music_item, parent,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.music_item,parent,false);
+
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        holder.musicNameText.setText(musicFiles.get(position).getTitle());
-        holder.artistNameText.setText(musicFiles.get(position).getArtist());
+        holder.musicNameText.setText(albumSongs.get(position).getTitle());
+        holder.artistNameText.setText(albumSongs.get(position).getArtist());
 
-        byte[] image = getMusicImage(musicFiles.get(position).getPath());
+        byte[] image = getMusicImage(albumSongs.get(position).getPath());
         if(image!=null){
-            Glide.with(mContext)
+            Glide.with(context)
                     .load(image)
                     .into(holder.musicImage);
         }else{
-            Glide.with(mContext)
+            Glide.with(context)
                     .load(R.drawable.default_album_art)
                     .into(holder.musicImage);
         }
 
         holder.itemView.setOnClickListener(view -> {
-            Intent intent = new Intent(mContext, PlayerActivity.class);
-            intent.putExtra("position",holder.getAdapterPosition());
-            mContext.startActivity(intent);
+            // TODO: u have to open player activity to play song but position is not the adapter position
+            Intent intent = new Intent(context, PlayerActivity.class);
+            intent.putExtra("sender","albumDetails");
+            intent.putExtra("position",position);
+            context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return musicFiles.size();
+        return albumSongs.size();
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder{
+    public class MyViewHolder extends RecyclerView.ViewHolder {
         private ImageView musicImage;
         private TextView musicNameText;
         private TextView artistNameText;

@@ -29,6 +29,8 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPagerAdapter adapter;
     private final ArrayList<String> tabTitles = new ArrayList<String>(Arrays.asList("Songs","Albums"));
     public static ArrayList<MusicFile> musicFiles;
+    public static ArrayList<MusicFile> albums = new ArrayList<>();
 
     public static MusicPlayMode currentMusicPLayMode = MusicPlayMode.REPEAT;
 
@@ -93,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static ArrayList<MusicFile> getAllAudio(Context context){
         ArrayList<MusicFile> audioList = new ArrayList<>();
+        Set<String> duplicate = new HashSet<>();
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = {
@@ -115,6 +119,11 @@ public class MainActivity extends AppCompatActivity {
 
                 MusicFile musicFile = new MusicFile(path,title,artist,album,duration);
                 audioList.add(musicFile);
+
+                if(!duplicate.contains(album)){
+                    albums.add(musicFile);
+                    duplicate.add(album);
+                }
             }
             cursor.close();
         }
