@@ -7,7 +7,6 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,9 +15,13 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.SearchView;
+
+import com.example.myaudioplayerapp.adapters.MusicAdapter;
 import com.example.myaudioplayerapp.adapters.ViewPagerAdapter;
 import com.example.myaudioplayerapp.fragments.AlbumFragment;
 import com.example.myaudioplayerapp.fragments.SongFragment;
@@ -32,7 +35,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
     private static final String TAG = "MainActivity";
 
     public static final int REQUEST_CODE = 1;
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         permissionCheck();
 
         adapter = new ViewPagerAdapter(this);
-        adapter.addFragment(new SongFragment());
+        adapter.addFragment(SongFragment.getInstance());
         adapter.addFragment(new AlbumFragment());
 
         viewPager.setAdapter(adapter);
@@ -139,5 +142,38 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this,MusicPlayerService.class);
             stopService(intent);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search,menu);
+
+        MenuItem menuItem = menu.findItem(R.id.searchOption);
+        SearchView searchView = (SearchView) menuItem.getActionView();
+
+        searchView.setOnQueryTextListener(this);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String s) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String s) {
+        String userInput = s.toLowerCase();
+        ArrayList<MusicFile> myFiles = new ArrayList<>();
+
+        for(MusicFile song : musicFiles){
+            if(song.getTitle().toLowerCase().contains(userInput)){
+                myFiles.add(song);
+            }
+        }
+
+        SongFragment.getInstance().getMusicAdapter().updateMusicFiles(myFiles);
+
+        return true;
     }
 }

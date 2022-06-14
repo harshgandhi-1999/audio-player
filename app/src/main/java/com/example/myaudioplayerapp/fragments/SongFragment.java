@@ -15,11 +15,6 @@ import android.view.ViewGroup;
 import com.example.myaudioplayerapp.R;
 import com.example.myaudioplayerapp.adapters.MusicAdapter;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SongFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SongFragment extends Fragment {
 
     private RecyclerView songsRecView;
@@ -29,8 +24,19 @@ public class SongFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static SongFragment newInstance() {
-        return new SongFragment();
+    private static SongFragment instance = null;
+
+    public static SongFragment getInstance() {
+        if(instance==null){
+            instance = new SongFragment();
+        }
+
+        return instance;
+    }
+
+
+    public MusicAdapter getMusicAdapter(){
+        return musicAdapter;
     }
 
     @Override

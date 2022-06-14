@@ -3,6 +3,7 @@ package com.example.myaudioplayerapp;
 import static com.example.myaudioplayerapp.MainActivity.currentMusicPLayMode;
 import static com.example.myaudioplayerapp.MainActivity.musicFiles;
 import static com.example.myaudioplayerapp.adapters.AlbumSongsAdapter.albumSongs;
+import static com.example.myaudioplayerapp.adapters.MusicAdapter.mFiles;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -242,7 +243,7 @@ public class PlayerActivity extends AppCompatActivity{
         if (sender!=null && sender.equals("albumDetails")){
             songsList = albumSongs;
         }else{
-            songsList = musicFiles;
+            songsList = mFiles;
         }
         Log.i(TAG, "getIntentMethod: MediaPlayer = " + mediaPlayer);
     }

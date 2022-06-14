@@ -31,6 +31,8 @@
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/fragment_song.xml" value="0.2234375" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/fragment_songs.xml" value="0.2234375" />
         <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/layout/music_item.xml" value="0.6" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/menu/menu.xml" value="0.38372093023255816" />
+        <entry key="..\:/AndroidApps/MyAudioPlayerApp/app/src/main/res/menu/menu_search.xml" value="0.18958333333333333" />
       </map>
     </option>
   </component>

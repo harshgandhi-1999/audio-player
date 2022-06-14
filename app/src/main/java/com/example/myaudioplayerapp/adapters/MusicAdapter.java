@@ -22,11 +22,11 @@ import java.util.ArrayList;
 public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder>{
 
     private Context mContext;
-    private ArrayList<MusicFile> musicFiles;
+    public static ArrayList<MusicFile> mFiles;
 
     public MusicAdapter(Context mContext, ArrayList<MusicFile> musicFiles) {
         this.mContext = mContext;
-        this.musicFiles = musicFiles;
+        MusicAdapter.mFiles = musicFiles;
     }
 
     @NonNull
@@ -38,10 +38,10 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        holder.musicNameText.setText(musicFiles.get(position).getTitle());
-        holder.artistNameText.setText(musicFiles.get(position).getArtist());
+        holder.musicNameText.setText(mFiles.get(position).getTitle());
+        holder.artistNameText.setText(mFiles.get(position).getArtist());
 
-        byte[] image = getMusicImage(musicFiles.get(position).getPath());
+        byte[] image = getMusicImage(mFiles.get(position).getPath());
         if(image!=null){
             Glide.with(mContext)
                     .load(image)
@@ -61,7 +61,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
 
     @Override
     public int getItemCount() {
-        return musicFiles.size();
+        return mFiles.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
@@ -84,5 +84,11 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MyViewHolder
         retriever.release();
 
         return image;
+    }
+
+    public void updateMusicFiles(ArrayList<MusicFile> musicFiles){
+        MusicAdapter.mFiles = new ArrayList<>();
+        mFiles.addAll(musicFiles);
+        notifyDataSetChanged();
     }
 }
