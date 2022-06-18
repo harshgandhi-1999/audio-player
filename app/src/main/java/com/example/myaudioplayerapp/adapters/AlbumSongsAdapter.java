@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.example.myaudioplayerapp.PlayerActivity;
 import com.example.myaudioplayerapp.R;
 import com.example.myaudioplayerapp.models.MusicFile;
+import com.example.myaudioplayerapp.utils.Utility;
 
 import java.util.ArrayList;
 
@@ -40,8 +41,7 @@ public class AlbumSongsAdapter extends RecyclerView.Adapter<AlbumSongsAdapter.My
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.musicNameText.setText(albumSongs.get(position).getTitle());
         holder.artistNameText.setText(albumSongs.get(position).getArtist());
-
-        byte[] image = getMusicImage(albumSongs.get(position).getPath());
+        byte[] image = Utility.getMusicImage(albumSongs.get(position).getPath());
         if(image!=null){
             Glide.with(context)
                     .load(image)
@@ -77,14 +77,5 @@ public class AlbumSongsAdapter extends RecyclerView.Adapter<AlbumSongsAdapter.My
             musicNameText = itemView.findViewById(R.id.musicNameText);
             artistNameText = itemView.findViewById(R.id.artistNameText);
         }
-    }
-
-    private byte[] getMusicImage(String uri){
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(uri);
-        byte[] image = retriever.getEmbeddedPicture();
-        retriever.release();
-
-        return image;
     }
 }

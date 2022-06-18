@@ -1,24 +1,32 @@
 package com.example.myaudioplayerapp.services;
+import static com.example.myaudioplayerapp.notifications.ApplicationClass.ACTION_NEXT;
+import static com.example.myaudioplayerapp.notifications.ApplicationClass.ACTION_PLAY;
+import static com.example.myaudioplayerapp.notifications.ApplicationClass.ACTION_PREVIOUS;
+import static com.example.myaudioplayerapp.notifications.ApplicationClass.CHANNEL_ID_1;
+
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.example.myaudioplayerapp.PlayerActivity;
 import com.example.myaudioplayerapp.R;
 import com.example.myaudioplayerapp.models.MusicFile;
+import com.example.myaudioplayerapp.receivers.NotificationReceiver;
+import com.example.myaudioplayerapp.utils.Utility;
 
 import java.util.ArrayList;
 
@@ -32,9 +40,8 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     private int curPosition = 0;
     private ArrayList<MusicFile> songs;
     private final int notification_id = 1;
-    private final String CHANNEL_ID = "channel1";
     private final IBinder localBinder = new MusicBinder();
-    private LayoutInflater layoutInflater;
+    MediaSessionCompat mediaSessionCompat;
 
     public MusicPlayerService() {
         Log.i(TAG, "MusicPlayerService: Constructor called");
@@ -70,8 +77,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         Log.i(TAG, "onCreate: music player service onCreated called");
         myMediaPlayer = new MediaPlayer();
         curPosition = 0;
+        mediaSessionCompat = new MediaSessionCompat(getBaseContext(),"My Audio");
         initMusicPlayer();
-        createNotificationChannel();
+        //createNotificationChannel();
     }
 
     public void setCurPosition(int curPosition){
@@ -116,7 +124,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
             myMediaPlayer.release();
 //            myMediaPlayer = null;
             Toast.makeText(this, "Music is stopped", Toast.LENGTH_SHORT).show();
-            postNotification("Music is stopped");
+//            postNotification("Music is stopped");
         }
     }
 
@@ -144,29 +152,49 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         songs = songsList;
     }
 
-    private void createNotificationChannel(){
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,name,importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
+    public void postNotification(int playPauseButton) {
 
-    public void postNotification(String msg) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this,CHANNEL_ID)
+        Intent intent = new Intent(this, PlayerActivity.class);
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(this,0,intent,0);
+
+        Intent prevIntent = new Intent(this, NotificationReceiver.class)
+                .setAction(ACTION_PREVIOUS);
+        PendingIntent prevPendingIntent = PendingIntent.getBroadcast(this,0,prevIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        Intent nextIntent = new Intent(this, NotificationReceiver.class)
+                .setAction(ACTION_NEXT);
+        PendingIntent nextPendingIntent = PendingIntent.getBroadcast(this,0,nextIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        Intent playPauseIntent = new Intent(this, NotificationReceiver.class)
+                .setAction(ACTION_PLAY);
+        PendingIntent playPausePendingIntent = PendingIntent.getBroadcast(this,0,playPauseIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // setting up image in notification
+        byte[] picture = Utility.getMusicImage(songs.get(curPosition).getPath());
+        Bitmap thumb;
+
+        if(picture!=null){
+            thumb = BitmapFactory.decodeByteArray(picture,0,picture.length);
+        }else{
+            thumb = BitmapFactory.decodeResource(getResources(),R.drawable.default_album_art);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this,CHANNEL_ID_1)
                 .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("My Music Player")
-                .setContentText(msg)
-                .setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setLargeIcon(thumb)
+                .setContentTitle(songs.get(curPosition).getTitle())
+                .setContentText(songs.get(curPosition).getArtist())
+                .addAction(R.drawable.ic_skip_prev,"PREVIOUS",prevPendingIntent)
+                .addAction(playPauseButton,"PAUSE",playPausePendingIntent)
+                .addAction(R.drawable.ic_skip_next,"NEXT",nextPendingIntent)
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                        .setMediaSession(mediaSessionCompat.getSessionToken())
+                )
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setOnlyAlertOnce(true);
+
         Notification notification = builder.build();
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
         notificationManagerCompat.notify(TAG,notification_id,notification);

@@ -1,14 +1,11 @@
 package com.example.myaudioplayerapp;
 
 import static com.example.myaudioplayerapp.MainActivity.currentMusicPLayMode;
-import static com.example.myaudioplayerapp.MainActivity.musicFiles;
 import static com.example.myaudioplayerapp.adapters.AlbumSongsAdapter.albumSongs;
 import static com.example.myaudioplayerapp.adapters.MusicAdapter.mFiles;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.palette.graphics.Palette;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -35,9 +32,10 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.myaudioplayerapp.models.MusicFile;
 import com.example.myaudioplayerapp.services.MusicPlayerService;
+import com.example.myaudioplayerapp.utils.Utility;
 
 import java.util.ArrayList;
-import java.util.Locale;
+
 import java.util.Random;
 
 public class PlayerActivity extends AppCompatActivity{
@@ -98,9 +96,15 @@ public class PlayerActivity extends AppCompatActivity{
                     // change the image resource and pause the song
                     playBtn.setImageResource(R.drawable.ic_play);
                     mediaPlayer.pause();
+                    if(musicPlayerService!=null){
+                        musicPlayerService.postNotification(R.drawable.ic_play);
+                    }
                 }else{
                     playBtn.setImageResource(R.drawable.ic_pause);
                     mediaPlayer.start();
+                    if(musicPlayerService!=null){
+                        musicPlayerService.postNotification(R.drawable.ic_pause);
+                    }
                 }
             }
         });
@@ -118,7 +122,7 @@ public class PlayerActivity extends AppCompatActivity{
 
     private void handleMarkFavorite() {
         // toggle favorite
-        Toast.makeText(this,"Marked Favortie",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"Marked Favourite",Toast.LENGTH_SHORT).show();
     }
 
     private void handleMusicPlayModeChange() {
@@ -151,7 +155,7 @@ public class PlayerActivity extends AppCompatActivity{
                 // can generate illegal state exception for mediaPlayer
                 int currentPosition = mediaPlayer.getCurrentPosition();
                 seekBar.setProgress(currentPosition/1000);
-                durationPlayed.setText(getFormattedTime(currentPosition));
+                durationPlayed.setText(Utility.getFormattedTime(currentPosition));
                 runnable = new Runnable() {
                     @Override
                     public void run() {
@@ -206,11 +210,11 @@ public class PlayerActivity extends AppCompatActivity{
                 // set initial position
                 int currentPosition = mp.getCurrentPosition();
                 seekBar.setProgress(currentPosition/1000);
-                durationPlayed.setText(getFormattedTime(currentPosition));
+                durationPlayed.setText(Utility.getFormattedTime(currentPosition));
 
                 // set total duration
                 seekBar.setMax(mp.getDuration()/1000);
-                durationTotal.setText(getFormattedTime(mp.getDuration()));
+                durationTotal.setText(Utility.getFormattedTime(mp.getDuration()));
 
                 // is not playing that means play btn is shown so we have to change it to paused
                 if(mp.isPlaying()){
@@ -220,7 +224,7 @@ public class PlayerActivity extends AppCompatActivity{
                 }
 
                 // post the notification
-                musicPlayerService.postNotification("Music is playing");
+                musicPlayerService.postNotification(R.drawable.ic_pause);
 
 
                 playCycle();
@@ -250,7 +254,6 @@ public class PlayerActivity extends AppCompatActivity{
 
 
     private void playSong(){
-        Log.i(TAG, "playSong: Mediaplayer = " + mediaPlayer);
         if(mediaPlayer!=null){
             MusicFile musicFile = songsList.get(position);
             Uri uri = Uri.parse(musicFile.getPath());
@@ -307,37 +310,34 @@ public class PlayerActivity extends AppCompatActivity{
         if(data!=null){
             bitmap = BitmapFactory.decodeByteArray(data,0,data.length);
             imageAnimation(this,albumArt,bitmap);
-            Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
-                @Override
-                public void onGenerated(@Nullable Palette palette) {
-                    assert palette != null;
-                    Palette.Swatch swatch = palette.getDominantSwatch();
-                    ImageView imageGradient = findViewById(R.id.imageViewGradient);
-                    RelativeLayout layout = findViewById(R.id.playerContainer);
-                    imageGradient.setBackgroundResource(R.drawable.gradient_bg);
-                    layout.setBackgroundResource(R.drawable.player_bg);
-                    GradientDrawable gradientDrawable;
-                    if (swatch != null) {
+            Palette.from(bitmap).generate(palette -> {
+                assert palette != null;
+                Palette.Swatch swatch = palette.getDominantSwatch();
+                ImageView imageGradient = findViewById(R.id.imageViewGradient);
+                RelativeLayout layout = findViewById(R.id.playerContainer);
+                imageGradient.setBackgroundResource(R.drawable.gradient_bg);
+                layout.setBackgroundResource(R.drawable.player_bg);
+                GradientDrawable gradientDrawable;
+                if (swatch != null) {
 
-                        gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{swatch.getRgb(), 0x00000000});
-                        imageGradient.setBackground(gradientDrawable);
+                    gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{swatch.getRgb(), 0x00000000});
+                    imageGradient.setBackground(gradientDrawable);
 
-                        GradientDrawable gradientDrawableBg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{swatch.getRgb(), swatch.getRgb()});
-                        layout.setBackground(gradientDrawableBg);
+                    GradientDrawable gradientDrawableBg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{swatch.getRgb(), swatch.getRgb()});
+                    layout.setBackground(gradientDrawableBg);
 
-                        songTitle.setTextColor(swatch.getTitleTextColor());
-                        songArtistName.setTextColor(swatch.getBodyTextColor());
-                    } else {
+                    songTitle.setTextColor(swatch.getTitleTextColor());
+                    songArtistName.setTextColor(swatch.getBodyTextColor());
+                } else {
 
-                        gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{0xff000000, 0x00000000});
-                        imageGradient.setBackground(gradientDrawable);
+                    gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{0xff000000, 0x00000000});
+                    imageGradient.setBackground(gradientDrawable);
 
-                        GradientDrawable gradientDrawableBg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{0xff000000, 0xff000000});
-                        layout.setBackground(gradientDrawableBg);
+                    GradientDrawable gradientDrawableBg = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{0xff000000, 0xff000000});
+                    layout.setBackground(gradientDrawableBg);
 
-                        songTitle.setTextColor(Color.WHITE);
-                        songArtistName.setTextColor(getColor(R.color.grey));
-                    }
+                    songTitle.setTextColor(Color.WHITE);
+                    songArtistName.setTextColor(getColor(R.color.grey));
                 }
             });
 
@@ -391,19 +391,6 @@ public class PlayerActivity extends AppCompatActivity{
     private static int getRandomPosition(int size){
         Random random = new Random();
         return random.nextInt(size);
-    }
-
-    private static String getFormattedTime(int millis){
-
-        int hours = (int) (millis / (1000 * 60 * 60));
-        int minutes = (int) ((millis % (1000 * 60 * 60)) / (1000 * 60));
-        int seconds = (int) (((millis % (1000 * 60 * 60)) % (1000 * 60)) / 1000);
-
-        return String.format(Locale.ENGLISH,"%02d", hours) +
-                ":" +
-                String.format(Locale.ENGLISH,"%02d", minutes) +
-                ":" +
-                String.format(Locale.ENGLISH,"%02d", seconds);
     }
 
     private void imageAnimation(Context context,ImageView imageView,Bitmap bitmap){
