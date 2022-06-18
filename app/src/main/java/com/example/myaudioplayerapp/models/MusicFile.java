@@ -7,9 +7,6 @@ public class MusicFile {
     private String album;
     private String duration;
 
-    public MusicFile() {
-    }
-
     public MusicFile(String path, String title, String artist, String album, String duration) {
         this.path = path;
         this.title = title;

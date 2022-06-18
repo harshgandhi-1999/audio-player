@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -16,6 +15,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.myaudioplayerapp.adapters.AlbumSongsAdapter;
 import com.example.myaudioplayerapp.models.MusicFile;
+import com.example.myaudioplayerapp.utils.Utility;
 
 import java.util.ArrayList;
 
@@ -59,7 +59,7 @@ public class AlbumDetailActivity extends AppCompatActivity {
             }
         }
 
-        byte[] image = getMusicImage(albumSongs.get(0).getPath());
+        byte[] image = Utility.getMusicImage(albumSongs.get(0).getPath());
         if(image!=null){
             Glide.with(this)
                     .load(image)
@@ -80,14 +80,5 @@ public class AlbumDetailActivity extends AppCompatActivity {
             albumSongsRecView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
         }
 
-    }
-
-    private byte[] getMusicImage(String uri){
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(uri);
-        byte[] image = retriever.getEmbeddedPicture();
-        retriever.release();
-
-        return image;
     }
 }
